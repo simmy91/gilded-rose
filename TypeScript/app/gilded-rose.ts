@@ -11,7 +11,9 @@ export class Item {
 }
 
 /**
- * https://excalidraw.com/#json=CG_NnR938qtHeXTvD635k,pyfKeCaniSPBLSand_Guag
+ * NOTES
+ * - https://excalidraw.com/#json=tLl3Nngh_xBA1DBwpKhom,LwSfPEibO0G23oPNR1O7Xw
+ * - could add package-lock.json file to gitignore but prefer it to ensure no dependency issues
  */
 
 /**
@@ -19,9 +21,10 @@ export class Item {
  * @todo: can check case sensitivity for name
  * @todo: move to another file? utils.ts or get-time.ts?
  * @todo: isolate it completely by passing the array of items as a param?
+ * @todo: could also use some() or filter() but might be slower!!
  */
 export const getItem = (name: string): Item | undefined => {
-    return GildedRose.items.filter((item) => item.name.includes(name))[0];
+    return GildedRose.items.find((item) => item.name.includes(name));
 };
 
 export class GildedRose {
@@ -31,30 +34,33 @@ export class GildedRose {
         GildedRose.items = items;
     }
 
+    /**
+     * assuming this is called once at the end of the day
+     */
     static updateQuality() {
         for (let i = 0; i < this.items.length; i++) {
             let sellIn = this.items[i].sellIn; // easier to read
             let quality = this.items[i].quality; // easier to read
-            
-            if (!getItem('Aged Brie') && !getItem('Backstage passes')) {
-                if (quality > 0 && !getItem('Sulfuras')) quality--;
-            } else if (quality < 50) {
-                quality++;
-                if (getItem('Backstage passes')) {
-                    if (sellIn < 11 && quality < 50) quality++;
-                    if (sellIn < 6 && quality < 50) quality++;
-                }
+
+            /**
+             * @todo: could separate specific cases like this into other functions which can be easily tested
+             * e.g. updateSulfuras(), updateBackstagePasses() etc
+             */
+            if (getItem('Sulfuras')) quality = 80;
+            else if (getItem('Aged Brie')) quality++;
+            else if (getItem('Conjured')) quality -= 2;
+            else if (getItem('Backstage passes')) {
+                if (sellIn <= 0) quality = 0;
+                else if (sellIn > 0 && sellIn <= 5) quality += 3;
+                else if (sellIn > 5 && sellIn <= 10) quality += 2;
+                else quality ++;
+            }
+            else { // normal items
+                if (sellIn > 0) quality --;
+                else quality -=2; // expired so quality degrades twice as much
             }
 
-            if (!getItem('Sulfuras')) sellIn--;
-
-            if (sellIn < 0) {
-                if (!getItem('Aged Brie')) {
-                    if (!getItem('Backstage passes') && quality > 0 && !getItem('Sulfuras')) quality--;
-                    else quality = quality - quality;
-                }
-                else if (quality < 50) quality++;
-            }
+            if (!getItem('Sulfuras')) sellIn--; // legend!
         }
 
         return this.items;

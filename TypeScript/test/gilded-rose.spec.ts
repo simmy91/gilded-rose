@@ -9,6 +9,9 @@ describe('Gilded Rose', function () {
     });
 });
 
+/**
+ * @todo: add more erroneous data tests
+ */
 describe('getItem', function () {
     it('should return undefined if items empty', () => {
         GildedRose.items = [];
