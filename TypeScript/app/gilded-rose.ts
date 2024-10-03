@@ -45,22 +45,30 @@ export class GildedRose {
             /**
              * @todo: could separate specific cases like this into other functions which can be easily tested
              * e.g. updateSulfuras(), updateBackstagePasses() etc
+             * sulfuras = hammer :)
              */
-            if (getItem('Sulfuras')) quality = 80;
-            else if (getItem('Aged Brie')) quality++;
-            else if (getItem('Conjured')) quality -= 2;
+            if (getItem('Sulfuras')) continue; // assuming sellIn always is 0 and quality is always 80
+            else if (getItem('Aged Brie')) {
+                if (quality < 50) ++quality;
+            }
+            else if (getItem('Conjured')) quality -= 2; // we don't care about the 50 limit
             else if (getItem('Backstage passes')) {
-                if (sellIn <= 0) quality = 0;
-                else if (sellIn > 0 && sellIn <= 5) quality += 3;
-                else if (sellIn > 5 && sellIn <= 10) quality += 2;
-                else quality ++;
+                if (quality < 50) {
+                    if (sellIn <= 0) quality = 0; // expired (concert over!)
+                    else if (sellIn > 0 && sellIn <= 5) quality += 3;
+                    else if (sellIn > 5 && sellIn <= 10) quality += 2;
+                    else quality ++; // over 10 days
+                }
             }
             else { // normal items
-                if (sellIn > 0) quality --;
-                else quality -=2; // expired so quality degrades twice as much
+                if (sellIn > 0) --quality;
+                else quality -= 2; // expired so quality degrades twice as much
             }
 
-            if (!getItem('Sulfuras')) sellIn--; // legend!
+            --sellIn;
+
+            this.items[i].sellIn = sellIn;
+            this.items[i].quality = quality;
         }
 
         return this.items;
