@@ -14,6 +14,13 @@ export class Item {
  * NOTES
  * - https://excalidraw.com/#json=tLl3Nngh_xBA1DBwpKhom,LwSfPEibO0G23oPNR1O7Xw
  * - could add package-lock.json file to gitignore but prefer it to ensure no dependency issues
+ * 
+ * UPDATES (since tech task was submitted)
+ * - (fix) got my increments and decrements the wrong way round
+ * - (fix) forgot to re-assign values back to the array items
+ * - (test) added more tests
+ * - (fix) bugs in logic
+ * - (chore) refactored again after untangling the requirements in my head!
  */
 
 /**
