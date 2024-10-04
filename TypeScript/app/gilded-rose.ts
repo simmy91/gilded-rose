@@ -22,7 +22,19 @@ export class Item {
  * - (fix) bugs in logic
  * - (chore) refactored again after untangling the requirements in my head!
  * - (fix) remove funtion with find and it will find the first - but there may be mutliple items
+ * - (refactor) moved logic of backstage passes to another function + separate tests
+ * - (refactor) performance optimisations
  */
+
+export const getBackstagePassesQuality = (item: Item): number => {
+    if (item.quality < 50) {
+        if (item.sellIn > 10) return ++item.quality; // over 10 days
+        if (item.sellIn > 5) return item.quality += 2; // over 6 but under 10 days
+        if (item.sellIn > 0) return item.quality += 3; // over 0 but under 5 days
+        return 0; // expired (concert over!)
+    }
+    return item.quality; // do nothing is quality is 50 - cannot be exceeded
+};
 
 export class GildedRose {
     static items: Array<Item>;
@@ -33,42 +45,24 @@ export class GildedRose {
 
     /**
      * assuming this is called once at the end of the day
+     * sulfuras = hammer :)
+     * conjured = magic??
+     * https://www.w3schools.com/js/js_2016.asp
      */
     static updateQuality() {
-        for (let i = 0; i < this.items.length; i++) {
-            let sellIn = this.items[i].sellIn; // easier to read
-            let quality = this.items[i].quality; // easier to read
-
-            /**
-             * @todo: could separate specific cases like this into other functions which can be easily tested
-             * e.g. updateSulfuras(), updateBackstagePasses() etc
-             * sulfuras = hammer :)
-             * https://www.w3schools.com/js/js_2016.asp
-             */
+        for (let i = 0, j = this.items.length; i < j; i++) { // optimisation - not calculate length each time
             if (this.items[i].name.includes('Sulfuras')) continue; // assuming sellIn always is 0 and quality is always 80
             else if (this.items[i].name.includes('Aged Brie')) {
-                if (quality < 50) ++quality;
+                if (this.items[i].quality < 50) ++this.items[i].quality;
             }
-            else if (this.items[i].name.includes('Conjured')) quality -= 2; // we don't care about the 50 limit
-            else if (this.items[i].name.includes('Backstage passes')) {
-                if (quality < 50) {
-                    if (sellIn <= 0) quality = 0; // expired (concert over!)
-                    else if (sellIn > 0 && sellIn <= 5) quality += 3;
-                    else if (sellIn > 5 && sellIn <= 10) quality += 2;
-                    else quality ++; // over 10 days
-                }
-            }
+            else if (this.items[i].name.includes('Conjured')) this.items[i].quality -= 2; // we don't care about the 50 limit
+            else if (this.items[i].name.includes('Backstage passes')) this.items[i].quality = getBackstagePassesQuality(this.items[i]);
             else { // normal items
-                if (sellIn > 0) --quality;
-                else quality -= 2; // expired so quality degrades twice as much
+                if (this.items[i].sellIn > 0) --this.items[i].quality;
+                else this.items[i].quality -= 2; // expired so quality degrades twice as much
             }
-
-            --sellIn;
-
-            this.items[i].sellIn = sellIn;
-            this.items[i].quality = quality;
+            --this.items[i].sellIn;
         }
-
         return this.items;
     }
 }

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { GildedRose } from '../app/gilded-rose';
+import { GildedRose, getBackstagePassesQuality } from '../app/gilded-rose';
 
 describe('Gilded Rose', function () {
     it('should foo', function() {
@@ -224,5 +224,32 @@ describe('updateQuality', function () {
                 count++;
             }  
         });
+    });
+});
+
+describe('getBackstagePassesQuality()', function () {
+    it('should increment quality by 1 if sellIn is over 10 days', () => {
+        const item = { name: 'Backstage passes', sellIn: 45, quality: 19 };
+        expect(getBackstagePassesQuality(item)).to.equal(20);
+    });
+
+    it('should increment quality by 2 if sellIn is within 10 days', () => {
+        const item = { name: 'Backstage passes', sellIn: 7, quality: 19 };
+        expect(getBackstagePassesQuality(item)).to.equal(21);
+    });
+
+    it('should increment quality by 3 if sellIn is within 5 days', () => {
+        const item = { name: 'Backstage passes', sellIn: 3, quality: 19 };
+        expect(getBackstagePassesQuality(item)).to.equal(22);
+    });
+
+    it('should set quality to 0 if sellIn has expired', () => {
+        const item = { name: 'Backstage passes', sellIn: 0, quality: 19 };
+        expect(getBackstagePassesQuality(item)).to.equal(0);
+    });
+
+    it('should retain quality at 50 when reached', () => {
+       const item = { name: 'Backstage passes', sellIn: 45, quality: 50 };
+        expect(getBackstagePassesQuality(item)).to.equal(50);
     });
 });
