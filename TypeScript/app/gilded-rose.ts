@@ -21,18 +21,8 @@ export class Item {
  * - (test) added more tests
  * - (fix) bugs in logic
  * - (chore) refactored again after untangling the requirements in my head!
+ * - (fix) remove funtion with find and it will find the first - but there may be mutliple items
  */
-
-/**
- * https://www.w3schools.com/js/js_2016.asp
- * @todo: can check case sensitivity for name
- * @todo: move to another file? utils.ts or get-time.ts?
- * @todo: isolate it completely by passing the array of items as a param?
- * @todo: could also use some() or filter() but might be slower!!
- */
-export const getItem = (name: string): Item | undefined => {
-    return GildedRose.items.find((item) => item.name.includes(name));
-};
 
 export class GildedRose {
     static items: Array<Item>;
@@ -53,13 +43,14 @@ export class GildedRose {
              * @todo: could separate specific cases like this into other functions which can be easily tested
              * e.g. updateSulfuras(), updateBackstagePasses() etc
              * sulfuras = hammer :)
+             * https://www.w3schools.com/js/js_2016.asp
              */
-            if (getItem('Sulfuras')) continue; // assuming sellIn always is 0 and quality is always 80
-            else if (getItem('Aged Brie')) {
+            if (this.items[i].name.includes('Sulfuras')) continue; // assuming sellIn always is 0 and quality is always 80
+            else if (this.items[i].name.includes('Aged Brie')) {
                 if (quality < 50) ++quality;
             }
-            else if (getItem('Conjured')) quality -= 2; // we don't care about the 50 limit
-            else if (getItem('Backstage passes')) {
+            else if (this.items[i].name.includes('Conjured')) quality -= 2; // we don't care about the 50 limit
+            else if (this.items[i].name.includes('Backstage passes')) {
                 if (quality < 50) {
                     if (sellIn <= 0) quality = 0; // expired (concert over!)
                     else if (sellIn > 0 && sellIn <= 5) quality += 3;
